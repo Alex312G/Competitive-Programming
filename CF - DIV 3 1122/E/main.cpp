@@ -1,49 +1,47 @@
 #include <iostream>
-
+#include <vector>
 using namespace std;
-int sieve[200001];
+bool sieve[200001];
+vector<long long int> primes[200001];
+long long int dp[200001];
 void precalc(){
-    sieve[1] = 1;
-    for(int i = 2; i * i<=200000; i++)
+
+    for(int i = 2; i<=200000; i++)
     {
         if(sieve[i] == 0)
-        for(int j = i; j<=200000; j+=i)
         {
-            sieve[j] = i;
+            for(int j = 2*i; j<=200000; j+=i)
+            {
+                sieve[j] = 1;
+                primes[j].push_back(i);
+            }
+        primes[i].push_back(i);
         }
     }
 }
 void solve(){
-    int n, k, ans = 0;
+    long long int n, k, ans = 0;
     cin >> n >> k;
+    for(int i = 1; i<=n; i++) dp[i] = 1e18;
     for(int i = 1; i<=n; i++)
     {
-        int x, numimp = 1;
-        cin >> x;
-        int last_idx = sieve[x];
-        if(x > k)
+        if(i <= k)
+        dp[i] = 0;
+        else
         {
-            while(x/numimp > k)
+            for(auto x : primes[i])
             {
-            if(last_idx == 1)
-            {
-                ans+=x;
-                break;
+                dp[i] = min(dp[i], dp[i/x] * x + 1);
             }
-            if(x % last_idx == 0)
-            {
-                numimp *= last_idx;
-            }
-            last_idx = sieve[last_idx-1];
-            }
-            cout << x/numimp << ' ';
-            ans+=x/numimp;
         }
-        
-        
-        
     }
-    cout << ans;
+    for(int i = 1; i<=n; i++)
+    {
+        int val;
+        cin >> val;
+        ans+=dp[val];
+    }
+    cout << ans << '\n';
 }
 int main(){
     ios::sync_with_stdio(0);
